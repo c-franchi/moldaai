@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="650" height="650" viewBox="0 0 650 650">
+  <defs>
+   <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff2f2"/><stop offset="1" stop-color="#ffdae0"/></linearGradient>
+   <linearGradient id="bag" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffdae0"/><stop offset="1" stop-color="#efb1bc"/></linearGradient>
+   <filter id="shadow" x="-40%" y="-40%" width="180%" height="200%"><feDropShadow dx="0" dy="16" stdDeviation="13" flood-color="#b65572" flood-opacity=".2"/></filter>
+  </defs>
+  <rect width="650" height="650" rx="36" fill="url(#bg)"/>
+  <circle cx="560" cy="95" r="110" fill="white" opacity=".45"/>
+  <circle cx="83" cy="529" r="122" fill="white" opacity=".28"/><circle cx="429" cy="428" r="9" fill="#ffdae0" opacity=".36"/><circle cx="76" cy="172" r="11" fill="#ffdae0" opacity=".36"/><circle cx="532" cy="247" r="7" fill="#ffdae0" opacity=".36"/><circle cx="523" cy="223" r="6" fill="#ffdae0" opacity=".36"/><circle cx="551" cy="111" r="7" fill="#ffdae0" opacity=".36"/><circle cx="178" cy="426" r="4" fill="#ffdae0" opacity=".36"/><circle cx="291" cy="505" r="11" fill="#ffdae0" opacity=".36"/><circle cx="185" cy="198" r="4" fill="#ffdae0" opacity=".36"/><circle cx="110" cy="500" r="8" fill="#ffdae0" opacity=".36"/><circle cx="518" cy="326" r="4" fill="#ffdae0" opacity=".36"/><circle cx="397" cy="262" r="8" fill="#ffdae0" opacity=".36"/><circle cx="244" cy="534" r="11" fill="#ffdae0" opacity=".36"/><circle cx="523" cy="266" r="11" fill="#ffdae0" opacity=".36"/><circle cx="301" cy="71" r="11" fill="#ffdae0" opacity=".36"/><circle cx="49" cy="87" r="9" fill="#ffdae0" opacity=".36"/><circle cx="36" cy="353" r="10" fill="#ffdae0" opacity=".36"/><circle cx="376" cy="164" r="8" fill="#ffdae0" opacity=".36"/><circle cx="99" cy="137" r="6" fill="#ffdae0" opacity=".36"/><circle cx="279" cy="451" r="5" fill="#ffdae0" opacity=".36"/><circle cx="493" cy="86" r="4" fill="#ffdae0" opacity=".36"/><circle cx="362" cy="488" r="11" fill="#ffdae0" opacity=".36"/><circle cx="536" cy="95" r="7" fill="#ffdae0" opacity=".36"/><circle cx="333" cy="401" r="4" fill="#ffdae0" opacity=".36"/><circle cx="375" cy="457" r="11" fill="#ffdae0" opacity=".36"/><circle cx="243" cy="533" r="11" fill="#ffdae0" opacity=".36"/><circle cx="329" cy="267" r="4" fill="#ffdae0" opacity=".36"/><circle cx="429" cy="202" r="6" fill="#ffdae0" opacity=".36"/><circle cx="332" cy="134" r="6" fill="#ffdae0" opacity=".36"/><path d="M462 175h16 M470 167v16" stroke="#b65572" stroke-width="2.6" stroke-linecap="round" opacity=".25"/><path d="M58 393h16 M66 385v16" stroke="#b65572" stroke-width="2.6" stroke-linecap="round" opacity=".25"/><path d="M378 213h16 M386 205v16" stroke="#b65572" stroke-width="2.6" stroke-linecap="round" opacity=".25"/><path d="M285 115h16 M293 107v16" stroke="#b65572" stroke-width="2.6" stroke-linecap="round" opacity=".25"/><path d="M87 427h16 M95 419v16" stroke="#b65572" stroke-width="2.6" stroke-linecap="round" opacity=".25"/><path d="M429 146h16 M437 138v16" stroke="#b65572" stroke-width="2.6" stroke-linecap="round" opacity=".25"/><path d="M490 156h16 M498 148v16" stroke="#b65572" stroke-width="2.6" stroke-linecap="round" opacity=".25"/><path d="M514 99h16 M522 91v16" stroke="#b65572" stroke-width="2.6" stroke-linecap="round" opacity=".25"/>
+  <ellipse cx="327" cy="544" rx="178" ry="26" fill="#b65572" opacity=".13"/>
+  <g filter="url(#shadow)">
+    <path d="M220 216 Q222 134 312 137 Q401 136 405 217" stroke="#b65572" stroke-width="13" fill="none" opacity=".8"/>
+    <path d="M189 224 L437 224 L452 492 Q326 517 175 492 Z" fill="url(#bag)" stroke="#b65572" stroke-width="3"/>
+    <path d="M189 224 L437 224 L448 265 L181 265 Z" fill="#efb1bc" opacity=".8"/>
+    <path d="M179 265 L211 277 L204 483 L175 491 Z" fill="#b65572" opacity=".13"/>
+    <path d="M437 225 L448 266 L450 490 L422 483 Z" fill="white" opacity=".15"/>
+    <path d="M245 214 L379 214 L379 499 L245 499 Z" fill="white" opacity=".18"/>
+    <path d="M309 209 C260 170 232 205 255 223 C275 237 308 228 312 213 C331 181 377 182 380 209 C382 243 331 237 313 214" fill="#b65572" opacity=".67"/>
+    <path d="M310 209 L291 256 L309 249 L321 260 L319 208" fill="#b65572" opacity=".55"/>
+    <circle cx="313" cy="365" r="99" fill="#fffaf7" stroke="#b65572" stroke-width="5" opacity=".96"/>
+    <circle cx="313" cy="365" r="89" fill="none" stroke="#efb1bc" stroke-width="2" stroke-dasharray="4 8"/>
+    <text x="313" y="390" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif" font-size="112">🌷</text>
+    <circle cx="219" cy="287" r="11" fill="white" opacity=".5"/><circle cx="408" cy="444" r="9" fill="white" opacity=".6"/>
+  </g>
+  <path d="M114 421 C139 386 151 397 161 371" stroke="#b65572" stroke-width="5" fill="none" stroke-linecap="round" opacity=".3"/>
+  <path d="M490 283 Q530 264 541 235" stroke="#b65572" stroke-width="5" fill="none" stroke-linecap="round" opacity=".3"/>
+</svg>

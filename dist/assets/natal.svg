@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="650" height="650" viewBox="0 0 650 650">
+  <defs>
+   <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eef7ef"/><stop offset="1" stop-color="#e3b6aa"/></linearGradient>
+   <linearGradient id="bag" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e3b6aa"/><stop offset="1" stop-color="#96bd9e"/></linearGradient>
+   <filter id="shadow" x="-40%" y="-40%" width="180%" height="200%"><feDropShadow dx="0" dy="16" stdDeviation="13" flood-color="#639775" flood-opacity=".2"/></filter>
+  </defs>
+  <rect width="650" height="650" rx="36" fill="url(#bg)"/>
+  <circle cx="560" cy="95" r="110" fill="white" opacity=".45"/>
+  <circle cx="83" cy="529" r="122" fill="white" opacity=".28"/><circle cx="117" cy="288" r="7" fill="#e3b6aa" opacity=".36"/><circle cx="72" cy="40" r="5" fill="#e3b6aa" opacity=".36"/><circle cx="516" cy="534" r="8" fill="#e3b6aa" opacity=".36"/><circle cx="362" cy="434" r="3" fill="#e3b6aa" opacity=".36"/><circle cx="314" cy="290" r="6" fill="#e3b6aa" opacity=".36"/><circle cx="458" cy="506" r="11" fill="#e3b6aa" opacity=".36"/><circle cx="131" cy="138" r="11" fill="#e3b6aa" opacity=".36"/><circle cx="306" cy="379" r="4" fill="#e3b6aa" opacity=".36"/><circle cx="469" cy="211" r="4" fill="#e3b6aa" opacity=".36"/><circle cx="405" cy="449" r="9" fill="#e3b6aa" opacity=".36"/><circle cx="291" cy="267" r="4" fill="#e3b6aa" opacity=".36"/><circle cx="236" cy="398" r="7" fill="#e3b6aa" opacity=".36"/><circle cx="134" cy="527" r="3" fill="#e3b6aa" opacity=".36"/><circle cx="240" cy="463" r="8" fill="#e3b6aa" opacity=".36"/><circle cx="533" cy="517" r="6" fill="#e3b6aa" opacity=".36"/><circle cx="562" cy="334" r="11" fill="#e3b6aa" opacity=".36"/><circle cx="64" cy="364" r="8" fill="#e3b6aa" opacity=".36"/><circle cx="285" cy="348" r="9" fill="#e3b6aa" opacity=".36"/><circle cx="346" cy="222" r="4" fill="#e3b6aa" opacity=".36"/><circle cx="126" cy="296" r="11" fill="#e3b6aa" opacity=".36"/><circle cx="238" cy="99" r="7" fill="#e3b6aa" opacity=".36"/><circle cx="354" cy="408" r="6" fill="#e3b6aa" opacity=".36"/><circle cx="423" cy="287" r="6" fill="#e3b6aa" opacity=".36"/><circle cx="176" cy="345" r="6" fill="#e3b6aa" opacity=".36"/><circle cx="47" cy="136" r="5" fill="#e3b6aa" opacity=".36"/><circle cx="52" cy="371" r="8" fill="#e3b6aa" opacity=".36"/><circle cx="348" cy="231" r="9" fill="#e3b6aa" opacity=".36"/><circle cx="433" cy="188" r="5" fill="#e3b6aa" opacity=".36"/><path d="M389 330h16 M397 322v16" stroke="#639775" stroke-width="2.6" stroke-linecap="round" opacity=".25"/><path d="M69 174h16 M77 166v16" stroke="#639775" stroke-width="2.6" stroke-linecap="round" opacity=".25"/><path d="M258 384h16 M266 376v16" stroke="#639775" stroke-width="2.6" stroke-linecap="round" opacity=".25"/><path d="M424 283h16 M432 275v16" stroke="#639775" stroke-width="2.6" stroke-linecap="round" opacity=".25"/><path d="M91 305h16 M99 297v16" stroke="#639775" stroke-width="2.6" stroke-linecap="round" opacity=".25"/><path d="M167 492h16 M175 484v16" stroke="#639775" stroke-width="2.6" stroke-linecap="round" opacity=".25"/><path d="M87 388h16 M95 380v16" stroke="#639775" stroke-width="2.6" stroke-linecap="round" opacity=".25"/><path d="M385 308h16 M393 300v16" stroke="#639775" stroke-width="2.6" stroke-linecap="round" opacity=".25"/>
+  <ellipse cx="327" cy="544" rx="178" ry="26" fill="#639775" opacity=".13"/>
+  <g filter="url(#shadow)">
+    <path d="M220 216 Q222 134 312 137 Q401 136 405 217" stroke="#639775" stroke-width="13" fill="none" opacity=".8"/>
+    <path d="M189 224 L437 224 L452 492 Q326 517 175 492 Z" fill="url(#bag)" stroke="#639775" stroke-width="3"/>
+    <path d="M189 224 L437 224 L448 265 L181 265 Z" fill="#96bd9e" opacity=".8"/>
+    <path d="M179 265 L211 277 L204 483 L175 491 Z" fill="#639775" opacity=".13"/>
+    <path d="M437 225 L448 266 L450 490 L422 483 Z" fill="white" opacity=".15"/>
+    <path d="M245 214 L379 214 L379 499 L245 499 Z" fill="white" opacity=".18"/>
+    <path d="M309 209 C260 170 232 205 255 223 C275 237 308 228 312 213 C331 181 377 182 380 209 C382 243 331 237 313 214" fill="#639775" opacity=".67"/>
+    <path d="M310 209 L291 256 L309 249 L321 260 L319 208" fill="#639775" opacity=".55"/>
+    <circle cx="313" cy="365" r="99" fill="#fffaf7" stroke="#639775" stroke-width="5" opacity=".96"/>
+    <circle cx="313" cy="365" r="89" fill="none" stroke="#96bd9e" stroke-width="2" stroke-dasharray="4 8"/>
+    <text x="313" y="390" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif" font-size="112">🎄</text>
+    <circle cx="219" cy="287" r="11" fill="white" opacity=".5"/><circle cx="408" cy="444" r="9" fill="white" opacity=".6"/>
+  </g>
+  <path d="M114 421 C139 386 151 397 161 371" stroke="#639775" stroke-width="5" fill="none" stroke-linecap="round" opacity=".3"/>
+  <path d="M490 283 Q530 264 541 235" stroke="#639775" stroke-width="5" fill="none" stroke-linecap="round" opacity=".3"/>
+</svg>
