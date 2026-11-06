@@ -11,3 +11,6 @@
 .filter-options label{min-height:44px;display:flex;align-items:center;gap:8px}.icon-button,.quick-add,.heart-btn{min-width:44px;min-height:44px}.product-type,.muted{color:#745e68}
 @media(max-width:600px){.hero h1{font-size:32px}.container{padding-left:18px;padding-right:18px}.demo-bar{font-size:11px}.filters-panel{max-height:350px;overflow:auto}.product-title{overflow-wrap:anywhere}}
 .product-card{position:relative}
+
+.product-image img{object-fit:cover}.product-card .pill{color:#745e68}.product-gallery>img{object-fit:contain}.hero-art .main-art,.hero-art .second-art{object-fit:cover}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
