@@ -1,4 +1,6 @@
-# Moldaê — loja de moldes digitais
+# Moldae Personalizados
+
+Marca: **Moldae Personalizados**. Slogan: **Moldes digitais e criatividade sob medida**. O catálogo atual é digital; a marca comporta futuros produtos físicos personalizados. Frete, estoque físico e compra de itens físicos ainda não foram implementados.
 
 Fase B: catálogo persistente, painel administrativo e arquivos privados, com D1/R2 nativos do Sites. Sem Supabase. Mercado Pago permanece desativado e nenhum pedido é aprovado por formulário ou URL.
 
