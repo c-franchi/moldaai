@@ -29,3 +29,9 @@ Node 22+, `npm ci`, `npm run db:generate` somente após mudanças de schema e `n
 ## Próxima fase
 
 Mercado Pago Checkout Pro, webhook validado e idempotente, reconciliação, envio de e-mail e autenticação do público comprador serão tratados antes da abertura comercial. A loja continua com acesso restrito no Sites e pagamento desativado. Não cadastrar dados de cartão.
+
+## Navegação administrativa
+
+Menu lateral organizado por Visão geral, Catálogo e Loja, inspirado no painel do Quarteto Kids. No computador, o botão superior recolhe o menu para ícones; a preferência fica salva neste navegador. No celular, o menu abre em painel sobreposto e fecha ao navegar, pelo botão Fechar ou pela tecla Escape. O atalho Ctrl/Cmd+B alterna o menu fora dos campos de edição.
+
+Meus moldes combina busca e filtros de situação (todos, rascunhos, no catálogo, arquivados). Arquivos digitais reúne os originais por produto e mostra os cadastros ainda sem arquivo, com atalhos para o editor e para a conferência administrativa. Nenhum dado ou arquivo é compartilhado com o Quarteto Kids.

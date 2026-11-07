@@ -43,3 +43,6 @@ yarn-error.log*
 
 # OS metadata
 .DS_Store
+
+# Temporary visual QA fixtures (never publish)
+/public/__qa-*
