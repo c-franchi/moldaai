@@ -22,7 +22,8 @@ async function identity(r,db,required=false,adminEmail=''){
  if(!id||!email){if(required)fail(401,'Entre na sua conta para continuar.');return null}
  let name=r.headers.get('oai-authenticated-user-full-name')||email;
  if(r.headers.get('oai-authenticated-user-full-name-encoding')==='percent-encoded-utf-8'){try{name=decodeURIComponent(name)}catch{}}
- const role=email.toLowerCase()===adminEmail.trim().toLowerCase()?'admin':'customer';
+ const admins=adminEmail.split(',').map(value=>value.trim().toLowerCase()).filter(Boolean);
+ const role=admins.includes(email.trim().toLowerCase())?'admin':'customer';
  await db.prepare('INSERT INTO users(id,auth_subject,email,full_name,role,created_at) VALUES(?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET email=excluded.email,full_name=excluded.full_name,role=excluded.role').bind(id,id,email,name,role,now()).run();
  return {id,email,name,role};
 }

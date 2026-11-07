@@ -4,7 +4,7 @@ Fase B: catálogo persistente, painel administrativo e arquivos privados, com D1
 
 ## Administração
 
-Abra `/#/admin` autenticado com a conta proprietária configurada no servidor. A autorização é verificada em todas as APIs no servidor. Acesso de visualização não permite editar produtos, enviar arquivos ou conferir originais. A sessão é gerenciada pelo Sites, sem senhas no aplicativo. O administrador é definido em `MOLDAE_ADMIN_EMAIL` nas variáveis privadas de runtime; não há email administrativo fixo no código.
+Abra `/#/admin` autenticado com a conta proprietária configurada no servidor. A autorização é verificada em todas as APIs no servidor. Acesso de visualização não permite editar produtos, enviar arquivos ou conferir originais. A sessão é gerenciada pelo Sites, sem senhas no aplicativo. Os administradores são definidos como uma lista de e-mails separados por vírgula em `MOLDAE_ADMIN_EMAIL` nas variáveis privadas de runtime; não há email administrativo fixo no código.
 
 1. Em Classificações, crie ocasiões, festas, temas e tipos. Os nomes podem ser alterados.
 2. Cadastre o molde como rascunho. Informe valores em reais, medidas, conteúdo, formatos, licença e instruções.

@@ -7,12 +7,19 @@ const mf=new Miniflare({modules:true,script:'export default {fetch(){return new 
 const DB=await mf.getD1Database('DB'),BUCKET=await mf.getR2Bucket('BUCKET');
 for(const file of readdirSync('drizzle').filter(f=>f.endsWith('.sql')).sort()){for(const sql of readFileSync('drizzle/'+file,'utf8').split('--> statement-breakpoint').map(s=>s.trim()).filter(Boolean))await DB.prepare(sql).run()}
 const ADMIN_EMAIL='owner@example.test';
-const env={DB,BUCKET,MOLDAE_ADMIN_EMAIL:ADMIN_EMAIL},origin='https://moldae.test';
-const identities={admin:{'oai-authenticated-user-id':'owner-subject','oai-authenticated-user-email':ADMIN_EMAIL},viewer:{'oai-authenticated-user-id':'viewer-subject','oai-authenticated-user-email':'viewer@example.test'},other:{'oai-authenticated-user-id':'other-subject','oai-authenticated-user-email':'other@example.test'}};
+const env={DB,BUCKET,MOLDAE_ADMIN_EMAIL:ADMIN_EMAIL+', CoAdmin@example.test '},origin='https://moldae.test';
+const identities={secondAdmin:{'oai-authenticated-user-id':'second-admin-subject','oai-authenticated-user-email':'coadmin@example.test'},lookalike:{'oai-authenticated-user-id':'lookalike-subject','oai-authenticated-user-email':'not-coadmin@example.test'},admin:{'oai-authenticated-user-id':'owner-subject','oai-authenticated-user-email':ADMIN_EMAIL},viewer:{'oai-authenticated-user-id':'viewer-subject','oai-authenticated-user-email':'viewer@example.test'},other:{'oai-authenticated-user-id':'other-subject','oai-authenticated-user-email':'other@example.test'}};
 async function req(path,{actor,method='GET',body,originHeader=origin}={}){return handleAPI(new Request(origin+path,{method,headers:{...identities[actor],...(method!=='GET'?{origin:originHeader}:{}),...(body&&!(body instanceof FormData)?{'content-type':'application/json'}:{})},...(body?{body:body instanceof FormData?body:JSON.stringify(body)}:{})}),env)}
 const value={title:'Mini calendário Dinossauro 2027',slug:'calendario-dino',description:'Molde de calendário',short_description:'Um calendário de mesa',price_cents:1490,sale_price_cents:null,status:'draft',formats:['PDF'],license_text:'Uso pessoal e venda de peças físicas. Não revender o arquivo.',taxonomy_ids:[],featured:false,is_kit:false};
 let product,fileId,mediaId;
 after(()=>mf.dispose());
+test('multiple administrators use exact normalized emails and ordinary viewers remain blocked',async()=>{
+ assert.equal((await req('/api/me',{actor:'admin'}).then(r=>r.json())).user.role,'admin');
+ assert.equal((await req('/api/me',{actor:'secondAdmin'}).then(r=>r.json())).user.role,'admin');
+ assert.equal((await req('/api/admin/products',{actor:'secondAdmin'})).status,200);
+ assert.equal((await req('/api/admin/products',{actor:'lookalike'})).status,403);
+ assert.equal((await req('/api/admin/products',{actor:'viewer'})).status,403);
+});
 test('anonymous and viewer cannot access admin; origin checked before mutation',async()=>{
  assert.equal((await req('/api/admin/products')).status,401);
  assert.equal((await req('/api/admin/products',{actor:'viewer'})).status,403);
