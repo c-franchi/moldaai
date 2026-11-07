@@ -1,21 +1,19 @@
-# Moldaê — etapas de implementação
+# Arquitetura — fase B
 
-## Entrega atual: fase A
+Frontend existente em `store.html` e `public/store.js`, preservando o visual coral/rosa. `public/manage.js` implementa administração, cadastro e conta. A página raiz é servida por Vinext. APIs em `app/api/[...path]/route.ts` usam o serviço `server/api.mjs`.
 
-Site estático independente, reaproveitando o MVP fornecido. HTML, CSS e JavaScript sem dependências de compilação. Catálogo demonstrativo de nove produtos. Nenhum endpoint de pagamento, autenticação ou download é exposto. Conta e administração são prévias identificadas. O carrinho e favoritos usam armazenamento local; não representam registros comerciais.
+## Segurança
 
-As rotas são navegadas por fragmento (`/#/moldes`) nesta fase. Os caminhos públicos também são reconhecidos pelo roteador quando a hospedagem fornece fallback para index.html. Não depende de fallback para a navegação principal. Rotas de categorias por ocasião, festa, tema e tipo convergem ao mesmo catálogo. Filtros combináveis: categoria, tema, tipo, formato, preço e busca; ordenação por nome e preço.
+Sites injeta identidade autenticada; o email proprietário controla a função administrativa no servidor. IDs de usuário são estáveis dentro do Site. O visualizador não recebe privilégios administrativos. Todas as mutações exigem Origin do próprio Site. Não há um endpoint público de seed, importação ou alteração de permissões.
 
-## Fase B: D1 e R2 do Sites
+Catálogo retorna somente produtos ativos e metadados de prévias. D1 salva usuários, produtos, relacionamentos, arquivos e pedidos. Arquivos originais em R2 nunca são servidos pelo diretório público. Endpoint de download exige pedido pago, usuário correto e arquivo do produto adquirido; devoluções revogam acesso. Administrador tem rota separada para conferir originais.
 
-Aplicar migrations/0001_initial.sql somente depois de vincular o banco D1. Não há dados pessoais ou contas administrativas no seed. `previews/` conterá prévias públicas; `digital-products/` conterá arquivos privados. Implementar autenticação pública independente de conta ChatGPT, sessões HttpOnly/Secure/SameSite e validação de role no servidor. Visitantes não poderão atribuir role ou consultar pedidos de terceiros. CRUD, arquivos e permissões ainda não estão implementados.
+Mutações de produto/classificação são agrupadas em batch atômico do D1. Revisão e token de mutação impedem sobrescrita silenciosa e alteração cruzada em edições simultâneas. Upload valida limite e assinatura do arquivo; falha ao gravar metadados remove o novo objeto.
 
-## Fase C: Mercado Pago Checkout Pro
+## Migrações
 
-Preços e cupons são recalculados exclusivamente no servidor, em centavos. Criar pedido pendente e snapshots de itens em transação; confirmar pagamento por webhook assinado e consulta ao provedor, comparando referência, valor e moeda. Registrar eventos únicos por provedor/evento. Retorno da URL nunca muda status. Credenciais ficam em segredos de runtime. Integração ainda não implementada; não há cobranças nesta versão.
+Fonte de verdade: `db/schema.ts` e migrações geradas em `drizzle/` com journal e snapshots. A migração da fase B é o primeiro schema aplicado. O SQL de `migrations/` é um documento histórico não aplicado da fase A e não deve ser executado. Novas mudanças requerem migrações incrementais.
 
-`GET /api/download/:fileId` deverá exigir sessão, pertencimento do pedido, status pago e vínculo entre arquivo/produto/item. Entrega privada controlada; negar estornos, pendências e arquivos de outro usuário. Não colocar originais no dist ou em URLs permanentes.
+## Pagamentos
 
-## Lançamento
-
-Antes de vendas: produtos e arquivos reais, identidade comercial e canais, políticas revisadas, autenticação pública, CRUD persistente e compra sandbox completa com testes de idempotência, cupom, autorização e estorno. Manter site privado e salvar a primeira versão para revisão conforme o projeto.
+`POST /api/checkout` e webhooks retornam indisponível. Não há método administrativo para criar pedido pago. Pedidos reais aparecem somente após implementação do provedor; cenários de compra dos testes usam exclusivamente banco efêmero local.
