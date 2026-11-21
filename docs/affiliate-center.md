@@ -42,3 +42,7 @@ GitHub c-franchi/moldaai estava em 2f145908aa66194ec52ead2f4b119d75b79a16ad, com
 
 Novos: server/affiliate-api.mjs, public/affiliates.js, public/affiliates.css, public/assets/affiliates/epson-l3250-announcement.png, tests/affiliate-api.test.mjs, tests/affiliate-ui.test.mjs e este relatório.
 Integração: server/api.mjs, public/manage.js, public/store.js, public/admin-navigation.js e store.html. Nenhuma alteração nas rotinas de pagamento, autenticação, pedidos, personalização ou geometria dos moldes.
+
+## Importação adicional solicitada — papel Report
+
+Adicionado o produto report-premium-a4-75g-500 (Report Premium A4, branco, 75 g/m², pacote com 500 folhas), na categoria Papéis e Materiais. Seis fotografias originais foram identificadas exclusivamente na galeria do anúncio MLB21590318 / MLB4340413944 e copiadas sem alteração para assets/affiliates/report-a4-01.webp até report-a4-06.webp; fontes registradas no cadastro de importação. O link social completo fornecido pelo administrador é preservado. Preço e avaliação ficam sem valor fixo. A importação é aditiva/idempotente e nunca sobrescreve edições ou exclusões do administrador. Imagens importadas podem ser administradas pelo formulário existente. O cadastro continua independente do checkout interno e não ativa rotina de monitoramento de preço.

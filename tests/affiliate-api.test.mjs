@@ -8,8 +8,8 @@ after(()=>mf.dispose());
 test('affiliate management requires server admin and mutation origin; public seed is idempotent and never enters digital catalog',async()=>{
  assert.equal((await req('/api/admin/affiliates')).status,401);assert.equal((await req('/api/admin/affiliates',{actor:'viewer'})).status,403);
  assert.equal((await req('/api/admin/affiliates/products',{actor:'admin',method:'POST',body:{},originHeader:'https://evil.test'})).status,403);
- const r=await req('/api/affiliates');assert.equal(r.status,200);const d=await r.json();assert.equal(d.products.length,1);seed=d.products[0];assert.equal(seed.id,'epson-l3250');assert.equal(seed.offers[0].url,'https://meli.la/1EJzL9T');assert.equal(seed.price_cents,97678);assert.equal(seed.rating,4.9);assert.equal(seed.stale,true);assert.equal(seed.price_checked_at,null);assert.match(seed.images[0].url,/epson-l3250/);
- const again=await (await req('/api/affiliates')).json();assert.equal(again.products.length,1);assert.equal((await DB.prepare('SELECT COUNT(*) AS n FROM products').first()).n,0);
+ const r=await req('/api/affiliates');assert.equal(r.status,200);const d=await r.json();assert.equal(d.products.length,2);seed=d.products.find(p=>p.id==='epson-l3250');assert.equal(seed.id,'epson-l3250');assert.equal(seed.offers[0].url,'https://meli.la/1EJzL9T');assert.equal(seed.price_cents,97678);assert.equal(seed.rating,4.9);assert.equal(seed.stale,true);assert.equal(seed.price_checked_at,null);assert.match(seed.images[0].url,/epson-l3250/);
+ const again=await (await req('/api/affiliates')).json();assert.equal(again.products.length,2);assert.equal((await DB.prepare('SELECT COUNT(*) AS n FROM products').first()).n,0);
  const digital=await req('/api/products');assert.equal((await digital.json()).products.length,0);assert.equal((await req('/api/checkout',{method:'POST',body:{product_id:seed.id}})).status,503);
 });
 test('URL validation preserves the exact affiliate query and rejects unsafe URLs, credentials and lookalike hosts',()=>{
@@ -55,4 +55,11 @@ test('archive, deactivate, delete and marketplace disabling remove public recomm
  const d=await admin(),m=d.marketplaces.find(m=>m.id==='mercado-livre');assert.equal((await req('/api/admin/affiliates/marketplaces/'+m.id,{actor:'admin',method:'PUT',body:{...m,active:false}})).status,200);assert.ok(!(await (await req('/api/affiliates')).json()).products.some(p=>p.id===seed.id));assert.ok((await admin()).products.some(p=>p.id===seed.id));
  assert.equal((await req('/api/affiliates/epson-l3250/click',{method:'POST',body:{marketplace_id:'mercado-livre'}})).status,404);
  assert.equal((await req('/api/admin/affiliates/settings',{actor:'admin',method:'PUT',body:{stale_days:7}})).status,200);assert.equal((await admin()).settings.stale_days,7);
+});
+
+test('requested Report paper import has six exact bundled photos, no fixed price, editable data and no reseeding after restart',async()=>{
+ let p=(await admin()).products.find(p=>p.id==='report-premium-a4-75g-500');assert.ok(p);assert.equal(p.images.length,6);assert.equal(p.price_cents,null);assert.equal(p.sale_price_cents,null);assert.equal(p.offers[0].marketplace_id,'mercado-livre');assert.ok(p.offers[0].url.includes('ref=BJtPnttWJHegPrU8gf5K%2BbvRXnsVwo12OV0uOp1cmULPuRq5wCfSiQKSYcfmYGqCZF8%2BZ07pZmR98pXrNQXATuALnoVi0zsOl6MYdQRhPy6zzJ2a4pZ7b5IwXq6tK8bmqtRDuq8KAElaS%2F62kCnul9nvyVfRUoOfDnY2hCjyShelBSNKs%2FqzGPt3UR%2FucKdORVt69TtawQX7fDukCK1dUkPGIme%2F2wgJAO5BA74sQrHyzwxj4d9mrjt6JcsiF0g3m5GFXw%3D%3D'));
+ for(const image of p.images){const bytes=readFileSync('public'+image.url);assert.equal(bytes.subarray(0,4).toString(),'RIFF');assert.equal(bytes.subarray(8,12).toString(),'WEBP');}
+ assert.equal((await req('/api/admin/affiliates/products/'+p.id,{actor:'admin',method:'PUT',body:{...p,title:'Papel editado pelo administrador',status:'inactive'}})).status,200);
+ const proxy={prepare:(...args)=>DB.prepare(...args),batch:(...args)=>DB.batch(...args)};const r=await handleAPI(new Request(origin+'/api/admin/affiliates',{headers:headers('admin')}),{...env,DB:proxy});assert.equal(r.status,200);const data=await r.json();assert.equal(data.products.filter(x=>x.id===p.id).length,1);assert.equal(data.products.find(x=>x.id===p.id).title,'Papel editado pelo administrador');
 });
