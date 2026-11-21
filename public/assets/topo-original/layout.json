@@ -1,0 +1,65 @@
+{
+  "plate": {
+    "file": "plate.png",
+    "box": [
+      22,
+      0,
+      1166,
+      593
+    ]
+  },
+  "vines": {
+    "file": "vines.png",
+    "box": [
+      40,
+      17,
+      1148,
+      588
+    ]
+  },
+  "birdhouse": {
+    "file": "birdhouse.png",
+    "box": [
+      20,
+      497,
+      307,
+      957
+    ]
+  },
+  "flowers": {
+    "file": "flowers.png",
+    "box": [
+      24,
+      853,
+      433,
+      1141
+    ]
+  },
+  "mushroom": {
+    "file": "mushroom.png",
+    "box": [
+      767,
+      765,
+      1177,
+      1139
+    ]
+  },
+  "butterfly": {
+    "file": "butterfly.png",
+    "box": [
+      925,
+      610,
+      1097,
+      774
+    ]
+  },
+  "fairy": {
+    "file": "fairy.png",
+    "box": [
+      304,
+      523,
+      809,
+      1141
+    ]
+  }
+}

@@ -1,0 +1,1 @@
+ALTER TABLE `products` ADD `assembled_dimensions_json` text DEFAULT '{}' NOT NULL;

@@ -8,6 +8,34 @@
       "when": 1794018045546,
       "tag": "0000_rare_meltdown",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1794074686106,
+      "tag": "0001_perpetual_mauler",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1794147820755,
+      "tag": "0002_fantastic_lady_bullseye",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1794149544448,
+      "tag": "0003_secret_pixie",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1794151523056,
+      "tag": "0004_familiar_vance_astro",
+      "breakpoints": true
     }
   ]
 }

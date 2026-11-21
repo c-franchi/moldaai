@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {gardenDocument} from '../public/studio-garden.mjs';
+import {validateDocument,artAreas} from '../public/studio-model.mjs';
+import {pieceCuts,addTag,removePiece} from '../public/studio-tags.mjs';
+import {faceLinkGroups,replicateFaces} from '../public/studio-face-links.mjs';
+import {areaAtPoint} from '../public/studio-clipboard.mjs';
+const blank=()=>{const d=gardenDocument('toppers',Object.fromEntries(['fairy','mushroom','birdhouse','flowers','butterfly','garden'].map(k=>[k,k])));d.images=[];d.fields=[];d.paths=d.paths.filter(p=>p.usage==='cut'||p.usage==='fold');d.order=d.paths.map(p=>p.id);return validateDocument(d);};
+test('blank toppers expose three independent selectable contours without altering geometry',()=>{const d=blank();assert.equal(pieceCuts(d).length,3);for(const p of pieceCuts(d)){const a=areaAtPoint(d,{x:p.x+p.w/2,y:p.y+p.h/2});assert.equal(a.id,'shape-'+p.id);}assert.equal(faceLinkGroups(d)[0].areas.length,3);});
+test('copy, duplicate, remove and reload preserve independent compositions and cuts',()=>{let d=blank();const p=pieceCuts(d)[0];d.fields=[{id:'caption',key:'static',text:'Teste',x:p.x+4,y:p.y+10,w:30,h:8,size:12,minSize:8,color:'#123456',align:'center',rotation:12}];d.order.push('caption');const original=structuredClone(d.paths),ids=faceLinkGroups(d)[0].areas.map(a=>a.id);d=replicateFaces(d,ids[0],ids);delete d.faceLinks;assert.deepEqual(d.paths,original);assert.equal(d.fields.length,3);assert.equal(d.fields[1].x-d.fields[0].x,46);d.fields[1].text='Independente';assert.equal(d.fields[0].text,'Teste');const r=addTag(d,{mode:'copy',sourceId:p.id});assert.equal(pieceCuts(r.document).length,4);assert.equal(r.document.fields.length,4);const removed=removePiece(r.document,r.cutId);assert.equal(pieceCuts(removed).length,3);assert.deepEqual(removed.fields,d.fields);assert.deepEqual(validateDocument(JSON.parse(JSON.stringify(removed))),removed);});
+test('new rectangular geometry automatically receives areas and piece operations',()=>{const d=blank();d.paths=d.paths.map((p,i)=>({...p,id:'new-'+i,kind:'rect',points:[[0,0],[1,1]],w:35,h:25}));d.order=d.paths.map(p=>p.id);assert.equal(artAreas('art-a4',{paths:d.paths}).filter(a=>a.id.startsWith('shape-')).length,3);assert.equal(pieceCuts(addTag(d).document).length,4);});

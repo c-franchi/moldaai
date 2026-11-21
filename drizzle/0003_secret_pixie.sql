@@ -1,0 +1,1 @@
+ALTER TABLE `product_media` ADD `is_hidden` integer DEFAULT 0 NOT NULL;

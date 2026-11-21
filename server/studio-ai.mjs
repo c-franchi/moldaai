@@ -1,0 +1,64 @@
+import {AI_MODELS,AI_STYLES,AI_COMPOSITIONS,aiSize,buildArtPrompt} from '../public/studio-ai-prompt.mjs';
+import {initAICost,recordAICost,jobCost,aiFinance,updateAIBalance} from './studio-ai-cost.mjs';
+const MAX_IMAGE=16*1024*1024,MAX_REFERENCE=8*1024*1024;
+const STYLES=AI_STYLES;
+const SIZES={square:'1024x1024',portrait:'1024x1536',landscape:'1536x1024'};
+function apiKey(env){return env.OPENAI_KEY_SECRET?.trim()||env.OPENAI_API_KEY?.trim()||'';}
+export function aiSettings(env){return {enabled:!!apiKey(env)&&env.MOLDAE_AI_ENABLED!=='false',model:'gpt-image-2.6-sunburst',quality:'max',resolution:'print',dailyLimit:Math.max(1,Math.min(20,Number.parseInt(env.MOLDAE_AI_DAILY_LIMIT,10)||5)),monthlyLimit:Math.max(1,Math.min(100,Number.parseInt(env.MOLDAE_AI_MONTHLY_LIMIT,10)||30))};}
+function period(){const day=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());return {day,month:day.slice(0,7)};}
+async function init(db){await db.prepare(`CREATE TABLE IF NOT EXISTS studio_ai_jobs(id TEXT PRIMARY KEY,template_id TEXT NOT NULL,user_id TEXT NOT NULL,status TEXT NOT NULL,day_key TEXT NOT NULL,month_key TEXT NOT NULL,created_at TEXT NOT NULL,object_key TEXT,bytes INTEGER,error TEXT)`).run();await db.prepare('CREATE INDEX IF NOT EXISTS studio_ai_period ON studio_ai_jobs(month_key,day_key,status)').run();}
+async function counts(db){const {day,month}=period();return await db.prepare('SELECT SUM(CASE WHEN day_key=? THEN 1 ELSE 0 END) AS daily,COUNT(*) AS monthly FROM studio_ai_jobs WHERE month_key=?').bind(day,month).first();}
+async function publicJob(db,j){return {render:await db.prepare('SELECT model,quality,size,width,height FROM studio_ai_render WHERE job_id=?').bind(j.id).first(),cost:await jobCost(db,j.id),id:j.id,template_id:j.template_id,status:j.status,created_at:j.created_at,error:j.error||null,...(['ready','accepted'].includes(j.status)?{preview_url:'/api/admin/studio/ai/jobs/'+j.id+'/image'}:{})};}
+async function decodeImage(bytes,mime,fail){if(!bytes?.length||bytes.length>MAX_IMAGE||!['image/png','image/jpeg'].includes(mime))fail(400,'Use uma imagem PNG ou JPG de até 16 MB.');try{const {PDFDocument}=await import('pdf-lib');const pdf=await PDFDocument.create(),image=mime==='image/png'?await pdf.embedPng(bytes):await pdf.embedJpg(bytes);if(image.width*image.height>20000000)fail(400,'Use uma imagem de até 20 megapixels.');return {width:image.width,height:image.height};}catch(e){if(e.status)throw e;fail(400,'Não foi possível ler a imagem.');}}
+export async function studioAIAPI(r,env,user,{json,fail,bodyLimited,detectFile},transport=fetch){
+ const path=new URL(r.url).pathname,method=r.method,db=env.DB,settings=aiSettings(env);
+ await init(db);await initAICost(db);
+ if(path==='/api/admin/studio/ai/finance'&&method==='GET'){const template=new URL(r.url).searchParams.get('template');if(template&&!/^[-\w]{1,100}$/.test(template))fail(400,'Arte inválida.');return json(await aiFinance(db,template));}
+ if(path==='/api/admin/studio/ai/balance'&&method==='PUT'){let body;try{body=JSON.parse(new TextDecoder().decode(await bodyLimited(r,2048)));}catch(error){if(error.status)throw error;fail(400,'Dados de saldo inválidos.');}await updateAIBalance(db,user,body,fail);return json({ok:true});}
+ // An interrupted request never triggers an automatic paid retry.
+ await db.prepare("UPDATE studio_ai_jobs SET status='failed',error='Geração interrompida. A tentativa foi contabilizada; confira o consumo antes de tentar novamente.' WHERE status='pending' AND created_at<?").bind(new Date(Date.now()-5*60*1000).toISOString()).run();
+ if(path==='/api/admin/studio/ai/config'&&method==='GET')return json({...settings,...await counts(db),message:settings.enabled?'Geração disponível.':'Geração indisponível: falta configurar a integração de IA no servidor.'});
+ let m=path.match(/^\/api\/admin\/studio\/ai\/jobs\/([-\w]+)(?:\/(image|accept))?$/);
+ if(m){const [,id,action]=m,j=await db.prepare('SELECT * FROM studio_ai_jobs WHERE id=?').bind(id).first();if(!j||j.user_id!==user.id)fail(404,'Geração não encontrada.');
+  if(!action&&method==='GET')return json({job:await publicJob(db,j)});
+  if(action==='image'&&method==='GET'){if(!['ready','accepted'].includes(j.status))fail(404,'Prévia indisponível.');const obj=await env.BUCKET.get(j.object_key);if(!obj)fail(404,'Prévia indisponível.');return new Response(obj.body,{headers:{'content-type':'image/png','cache-control':'private, no-store','x-content-type-options':'nosniff'}});}
+  if(action==='accept'&&method==='POST'){
+   if(!['ready','accepted'].includes(j.status))fail(409,'Esta geração ainda não pode ser salva.');
+   await db.prepare("INSERT OR IGNORE INTO studio_assets(id,template_id,object_key,filename,mime,bytes) SELECT ?,?,?,?,'image/png',? WHERE (SELECT COUNT(*) FROM studio_assets WHERE template_id=?)<24 AND EXISTS(SELECT 1 FROM studio_ai_jobs WHERE id=? AND status IN ('ready','accepted'))").bind(j.id,j.template_id,j.object_key,'IA-'+j.id.slice(0,8)+'.png',j.bytes,j.template_id,j.id).run();
+   if(!await db.prepare('SELECT id FROM studio_assets WHERE id=? AND template_id=?').bind(j.id,j.template_id).first())fail(409,'Limite de 24 imagens em Artes. Exclua uma imagem enviada antes de salvar esta prévia.');
+   await db.prepare("UPDATE studio_ai_jobs SET status='accepted' WHERE id=?").bind(j.id).run();return json({asset_id:j.id});
+  }
+  if(!action&&method==='DELETE'){if(j.status==='discarded')return json({ok:true});if(j.status!=='ready')fail(409,'Somente prévias ainda não salvas podem ser descartadas.');const removed=await db.prepare("UPDATE studio_ai_jobs SET status='discarded' WHERE id=? AND status='ready' AND NOT EXISTS(SELECT 1 FROM studio_assets WHERE id=?)").bind(j.id,j.id).run();if(!removed.meta.changes)fail(409,'Esta imagem já foi salva em Artes.');await env.BUCKET.delete(j.object_key);return json({ok:true});}
+  fail(405,'Operação indisponível.');
+ }
+ m=path.match(/^\/api\/admin\/studio\/templates\/([-\w]+)\/ai$/);if(!m||method!=='POST')fail(404,'Recurso de IA não encontrado.');
+ if(!settings.enabled)fail(503,'A geração com IA ainda precisa ser configurada no servidor. Nenhuma cobrança foi realizada.');
+ const templateId=m[1];if(!await db.prepare('SELECT id FROM studio_templates WHERE id=?').bind(templateId).first())fail(404,'Molde não encontrado.');
+ const raw=await bodyLimited(r,MAX_REFERENCE+32768);let f;try{f=await new Request(r.url,{method:'POST',headers:{'content-type':r.headers.get('content-type')||''},body:raw}).formData();}catch{fail(400,'Pedido de geração inválido.');}
+ const id=f.get('request_id'),description=f.get('description'),style=f.get('style')||'auto',format=f.get('format')||'square',background=f.get('background')||'transparent',mode=f.get('mode')||'create',quality=f.get('quality')||'max',model=f.get('model')||settings.model,resolution=f.get('resolution')||'print',composition=f.get('composition')||'auto',palette=f.get('palette')||'',details=f.get('details')||'',avoid=f.get('avoid')||'';
+ if(!Object.hasOwn(AI_MODELS,model)||!AI_MODELS[model].qualities.includes(quality)||!['standard','print'].includes(resolution)||(model==='gpt-image-1.5'&&resolution!=='standard')||!Object.hasOwn(AI_COMPOSITIONS,composition)||typeof palette!=='string'||palette.length>300||typeof details!=='string'||details.length>1000||typeof avoid!=='string'||avoid.length>600)fail(400,'Confira o modelo, qualidade, resolução e os detalhes da arte.');
+ if(typeof id!=='string'||! /^[a-f0-9-]{36}$/i.test(id)||typeof description!=='string'||description.trim().length<10||description.length>3000||!Object.hasOwn(STYLES,style)||!Object.hasOwn(SIZES,format)||!['transparent','opaque'].includes(background)||!['create','reference','edit'].includes(mode)||!AI_MODELS[model].qualities.includes(quality)||f.get('confirmed')!=='yes')fail(400,'Descreva a imagem (10 a 3.000 caracteres), escolha as opções e confirme a geração.');
+ const existing=await db.prepare('SELECT * FROM studio_ai_jobs WHERE id=?').bind(id).first();if(existing){if(existing.template_id!==templateId||existing.user_id!==user.id)fail(409,'Identificador de pedido já utilizado.');return json({job:await publicJob(db,existing)});}
+ let reference=null,mime=null;
+ const asset=f.get('reference_asset'),file=f.get('reference');
+ if(mode!=='create'){
+  if(asset){const a=await db.prepare('SELECT * FROM studio_assets WHERE id=? AND template_id=?').bind(String(asset),templateId).first();if(!a)fail(400,'Selecione uma imagem deste molde.');const obj=await env.BUCKET.get(a.object_key);if(!obj)fail(400,'Imagem de referência indisponível.');reference=new Uint8Array(await obj.arrayBuffer());mime=a.mime;}
+  else if(file&&typeof file!=='string'){reference=new Uint8Array(await file.arrayBuffer());mime=detectFile(reference,file.name,true);}else fail(400,'Envie ou selecione uma imagem de referência.');
+  await decodeImage(reference,mime,fail);
+ }
+ const amount=await db.prepare('SELECT COUNT(*) AS n FROM studio_assets WHERE template_id=?').bind(templateId).first();if(amount.n>=24)fail(409,'Exclua uma imagem de Artes antes de gerar: limite de 24 imagens por molde.');
+ const {day,month}=period(),at=new Date().toISOString();
+ const reservation=await db.prepare("INSERT OR IGNORE INTO studio_ai_jobs(id,template_id,user_id,status,day_key,month_key,created_at) SELECT ?,?,?,'pending',?,?,? WHERE (SELECT COUNT(*) FROM studio_ai_jobs WHERE day_key=?)<? AND (SELECT COUNT(*) FROM studio_ai_jobs WHERE month_key=?)<? AND NOT EXISTS(SELECT 1 FROM studio_ai_jobs WHERE status='pending')").bind(id,templateId,user.id,day,month,at,day,settings.dailyLimit,month,settings.monthlyLimit).run();
+ if(!reservation.meta.changes){const duplicate=await db.prepare('SELECT * FROM studio_ai_jobs WHERE id=?').bind(id).first();if(duplicate?.user_id===user.id&&duplicate.template_id===templateId)return json({job:await publicJob(db,duplicate)});fail(429,'Limite de gerações atingido ou há outra geração em andamento. Aguarde e consulte o consumo.');}
+ await db.prepare('INSERT INTO studio_ai_render(job_id,model,quality,size) VALUES(?,?,?,?)').bind(id,model,quality,aiSize(format,resolution)).run();
+ const prompt=buildArtPrompt({mode,description,style,background,composition,palette,details,avoid});
+ try{
+  const params={model,prompt,n:1,size:aiSize(format,resolution),quality,background,output_format:'png'};if(model==='gpt-image-2.6-sunburst')params.complexity='high';else if(reference)params.input_fidelity='high';let body,headers={authorization:'Bearer '+apiKey(env)};
+  if(reference){body=new FormData();for(const [k,v]of Object.entries(params))body.set(k,String(v));body.set('image',new File([reference],'reference.'+(mime==='image/png'?'png':'jpg'),{type:mime}));}else{headers['content-type']='application/json';body=JSON.stringify(params);}
+  const response=await transport('https://api.openai.com/v1/images/'+(reference?'edits':'generations'),{method:'POST',headers,body,signal:AbortSignal.timeout(240000)});
+  if(!response.ok){const providerStatus=response.status;await response.body?.cancel();throw new Error(providerStatus===429?'O provedor atingiu o limite de uso ou saldo.':providerStatus===401||providerStatus===403?'A integração de IA não tem acesso autorizado ao modelo escolhido. Confira o acesso na OpenAI ou selecione o modelo de compatibilidade; não trocamos o modelo automaticamente.':providerStatus===400?'A geração foi recusada pelo provedor. Revise a descrição e a referência.':'O serviço de imagens está indisponível.');}
+  const responseBytes=await bodyLimited(response,24*1024*1024),output=JSON.parse(new TextDecoder().decode(responseBytes)),b64=output.data?.[0]?.b64_json;await recordAICost(db,id,output.usage,model);if(typeof b64!=='string'||b64.length>Math.ceil(MAX_IMAGE*4/3)+8)throw new Error('A imagem gerada excede o tamanho permitido ou não foi retornada.');
+  const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));const dimensions=await decodeImage(bytes,'image/png',fail);await db.prepare('UPDATE studio_ai_render SET width=?,height=? WHERE job_id=?').bind(dimensions.width,dimensions.height,id).run();const key='studio-ai/'+templateId+'/'+id+'.png';await env.BUCKET.put(key,bytes,{httpMetadata:{contentType:'image/png'}});await db.prepare("UPDATE studio_ai_jobs SET status='ready',object_key=?,bytes=? WHERE id=?").bind(key,bytes.length,id).run();
+ }catch(error){const known=['O provedor','A integração','A geração','O serviço','A imagem'];const message=known.some(prefix=>error.message?.startsWith(prefix))?error.message:'Não foi possível concluir a geração. A tentativa foi contabilizada; confira o consumo antes de tentar novamente.';await db.prepare("UPDATE studio_ai_jobs SET status='failed',error=? WHERE id=?").bind(message,id).run();}
+ return json({job:await publicJob(db,await db.prepare('SELECT * FROM studio_ai_jobs WHERE id=?').bind(id).first())});
+}
